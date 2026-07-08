@@ -138,3 +138,61 @@ a:hover {
     padding-left: 20px;
     word-break: break-word;
 }
+
+.login-section {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.login-section h2 {
+    margin: 0 0 25px 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.login-section .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.login-section label {
+    width: 100px;
+    flex-shrink: 0;
+    color: #333;
+    font-size: 1em;
+}
+
+.login-section input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    font-size: 1em;
+}
+
+.login-section input:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.cookie-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    max-width: 320px;
+    padding: 14px 18px;
+    background-color: #333;
+    color: #fff;
+    font-size: 0.85em;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    z-index: 1000;
+}

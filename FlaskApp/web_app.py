@@ -7,6 +7,14 @@ app = Flask(__name__)
 def root():
     return render_template("root.html")
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+    
 @app.route("/news")
 def news():
     return render_template("news.html")
