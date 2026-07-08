@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -9,6 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
@@ -69,6 +70,7 @@ def login():
             if user is None or not check_password_hash(user.password_hash, password):
                 error = "incorrect username or password."
             else:
+                session.permanent = True
                 session['user_id'] = user.id
                 session['username'] = user.username
                 return redirect(url_for('news'))
