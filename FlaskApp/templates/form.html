@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	    <title>CyberNews - Contact us!</title>
+	</head>
+	<body>
+		<header>
+				<p class="MainTitle">Tell us about yourself</p>
+		</header>
+<div class="form-container">
+    <h2>User Profile Form</h2>
+    <form action="{{ url_for('contact') }}" method="POST">
+        <div class="form-group">
+            <label for="name">Name*</label>
+            <input type="text" id="name" name="name" placeholder="Full name" required>
+        </div>
+        <div class="form-group">
+            <label for="age">Age*</label>
+            <input type="number" id="age" name="age" min="0" max="120" placeholder="0" required>
+        </div>
+        <div class="form-group">
+            <label for="gender">Gender*</label>
+            <select id="gender" name="gender" required>
+                <option value="" disabled selected>Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="title">Title*</label>
+            <input type="text" id="title" name="title" placeholder="Title" required>
+        </div>
+        <div class="form-group">
+            <label for="message">Message*</label>
+            <textarea id="message" name="message" placeholder="Message..." required></textarea>
+        </div>
+        <button type="submit" id="send-msg-btn">Send message</button>
+		<div class="button-section">
+			<a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
+		</div>
+    </form>
+</div>
+		<footer>
+			<small>© CyberNews Tracker TradeMedia</small>
+		</footer>
+	</body>
+</html>

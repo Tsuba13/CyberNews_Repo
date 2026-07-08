@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	    <title>CyberNews - Home</title>
+	</head>
+	<body>
+		<header>
+				<p class="MainTitle">Welcome to CyberNews!</p>
+		</header>
+		<div class="button-section">
+			<a href="{{ url_for('news') }}" class="btn-news">Go to News</a>
+		</div>
+		<footer>
+			<small>© CyberNews Tracker TradeMedia</small>
+		</footer>
+	</body>
+</html>

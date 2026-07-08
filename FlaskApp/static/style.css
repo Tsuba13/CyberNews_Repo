@@ -1,0 +1,140 @@
+body {
+	background-color: #f4f4f4;
+	font-family: arial;
+	text-align: center;
+}
+
+header, footer {
+	background-color: #333;
+	color: white;
+	padding: 20px;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+main {
+	padding-top: 40px;
+	padding-bottom: 40px;
+}
+
+ul {
+	display: flex;
+	justify-content: center;
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+a {
+	text-decoration: none;
+	color: white;
+}
+
+a:hover {
+	color: #ccc;
+}
+
+.MainTitle {
+	font-size: 24px;
+	font-weight: 800;
+}
+
+.Gaps {
+	padding-right: 20px;
+}
+
+.btn-news,
+#RefreshButton,
+#send-msg-btn {
+    display: inline-block;
+    padding: 15px 35px;
+    background-color: grey;
+    color: cyan;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
+}
+
+.btn-news:hover,
+#RefreshButton:hover,
+#send-msg-btn:hover {
+    background-color: cyan;
+    color: black;
+    box-shadow: 0 0 20px rgba(0, 234, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.button-section {
+	padding: 40px 1px;
+	text-align: center;
+}
+
+.form-container,
+.result-container {
+	max-width: 500px;
+    margin: auto;
+    padding: 20px;
+}
+
+.form-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    width: 80px;
+    min-width: 80px;
+    text-align: left;
+    padding-top: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    flex: 1;
+    float: none;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#send-msg-btn {
+    margin-top: 10px;
+    float: none;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.detail-label {
+    font-weight: bold;
+    min-width: 100px;
+    text-align: left;
+}
+
+.detail-value {
+    text-align: left;
+    flex: 1;
+    padding-left: 20px;
+    word-break: break-word;
+}
