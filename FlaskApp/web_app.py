@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+from functools import wraps
 import os
 
 load_dotenv()
@@ -19,6 +20,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'us
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,16 +88,24 @@ def login():
     return render_template("login.html", error=error)
     
 @app.route("/logout")
+@login_required
 def logout():
     session.pop('user_id', None)
     session.pop('username', None)
     return redirect(url_for('root'))
 
 @app.route("/about-us")
+@login_required
 def about():
     return render_template("about.html")
+    
+@app.route("/news")
+@login_required
+def news():
+    return render_template("news.html")
 
 @app.route("/contact-us", methods=["GET", "POST"])
+@login_required
 def contact():
     if request.method == "POST":
         form_data = {
