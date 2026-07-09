@@ -6,26 +6,15 @@
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 	    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-	    <title>CyberNews - Home</title>
+	    <title>CyberNews - Log In</title>
 	</head>
 	<body>
 		<header>
-				<p class="MainTitle">Welcome to CyberNews!</p>
+			<p class="MainTitle">Member Login</p>
 		</header>
 
-		{% if session.get('user_id') %}
-		<div class="logged-in-section">
-			<h2>Welcome back, {{ session.username }}!</h2>
-			<div class="button-section">
-				<a href="{{ url_for('news') }}" class="btn-news">News</a>
-			</div>
-			<div class="button-section">
-				<a href="{{ url_for('logout') }}" class="btn-news">Log Out</a>
-			</div>
-		</div>
-		{% else %}
-		<div class="login-section">
-			<h2>Member Login</h2>
+		<div class="form-container">
+			<h2>Log In to Your Account</h2>
 			<form action="{{ url_for('login') }}" method="POST">
 				<div class="form-group">
 					<label for="username">Username</label>
@@ -42,27 +31,10 @@
 				{% endif %}
 				<button type="submit" id="send-msg-btn">Log In</button>
 				<div class="button-section">
-					<a href="{{ url_for('register') }}" class="btn-news">Sign Up</a>
+					<a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
 				</div>
 			</form>
 		</div>
-		{% endif %}
-
-		<div id="cookie-notice" class="cookie-notice">
-			This site uses essential cookies for login functionality.
-		</div>
-
-		<script>
-			setTimeout(function() {
-				var notice = document.getElementById('cookie-notice');
-				if (notice) {
-					notice.style.opacity = '0';
-					setTimeout(function() {
-						notice.style.display = 'none';
-					}, 500);
-				}
-			}, 4000);
-		</script>
 
 		<footer>
 			<small>© CyberNews Tracker TradeMedia</small>
