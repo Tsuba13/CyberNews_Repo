@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from functools import wraps
@@ -33,10 +34,13 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=func.now())
 
     def __repr__(self):
         return f'<User {self.username}>'
+        
+with app.app_context():
+        db.create_all()
 
 @app.route("/")
 def root():
@@ -122,6 +126,4 @@ def contact():
      return "Bad request!", 400
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
