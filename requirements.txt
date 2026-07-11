@@ -13,7 +13,7 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 msgspec==0.21.1
 python-dotenv==1.2.2
-requests==2.34.2
+requests
 SQLAlchemy==2.0.51
 typing_extensions==4.16.0
 urllib3==2.7.0
