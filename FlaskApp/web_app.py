@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from functools import wraps
 import os
+import requests
 
 load_dotenv()
 
@@ -15,6 +16,7 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['NEWS_API_KEY'] = os.environ.get('NEWS_API_KEY')
+
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
 
@@ -241,7 +243,14 @@ def news_live():
     api_key = app.config.get('NEWS_API_KEY')
     
     if request.method == "POST":
-        fetch_and_save_news(api_key, page_size=20)
+        if api_key:
+            try:
+                # Your fetch code here
+                fetch_and_save_news(api_key)
+            except Exception as e:
+                print(f"FETCH ERROR: {e}")  # Check Render logs for this
+        else:
+            print("ERROR: No API key in app.config")
     
     articles = Article.query.order_by(Article.published_at.desc()).limit(20).all()
     return render_template("news_live.html", articles=articles)
