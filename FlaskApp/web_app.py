@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
+from flask_session import Session
 from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from functools import wraps
@@ -11,10 +12,19 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
+
+app.config.update({
+    'SESSION_TYPE': 'filesystem',
+    'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
+    'SESSION_COOKIE_NAME': 'user_session',
+    'SESSION_COOKIE_HTTPONLY': True,
+    'SESSION_COOKIE_SECURE': True,
+    'SESSION_COOKIE_SAMESITE': 'Lax'
+})
+Session(app)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
@@ -38,9 +48,9 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
-        
+
 with app.app_context():
-        db.create_all()
+    db.create_all()
 
 @app.route("/")
 def root():
@@ -90,19 +100,20 @@ def login():
         if error and request.referrer and 'root' in request.referrer:
             return redirect(url_for('root', error=error))
     return render_template("login.html", error=error)
-    
+
 @app.route("/logout")
 @login_required
 def logout():
-    session.pop('user_id', None)
-    session.pop('username', None)
-    return redirect(url_for('root'))
+    session.clear()
+    response = redirect(url_for('root'))
+    response.delete_cookie(app.config['SESSION_COOKIE_NAME'])
+    return response
 
 @app.route("/about-us")
 @login_required
 def about():
     return render_template("about.html")
-    
+
 @app.route("/news")
 @login_required
 def news():
