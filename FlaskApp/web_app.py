@@ -326,8 +326,8 @@ def news_live():
 
     # Pagination
     total_count = query.count()
-    limit = request.args.get('limit', 10, type=int)
-    limit = max(10, min(limit, 100))
+    limit = request.args.get('limit', 20, type=int)
+    limit = max(20, min(limit, 100))
 
     articles = query.limit(limit).all()
     has_more = total_count > limit

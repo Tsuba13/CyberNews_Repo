@@ -65,7 +65,7 @@
                             </form>
                             {% endif %}
 
-                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete account {{ user.username }}? This cannot be undone.');">
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete account {{ user.username }}? This cannot be undone.');" target="_self">
                                 <button type="submit" class="btn-action btn-delete">Delete</button>
                             </form>
                         </td>
