@@ -10,7 +10,13 @@
 	</head>
 	<body>
 		<header>
-				<p class="MainTitle">Welcome to CyberNews!</p>
+			<p class="MainTitle">Welcome to CyberNews!</p>
+			{% if session.get('user_id') %}
+			<div class="header-right">
+				<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+				<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+			</div>
+			{% endif %}
 		</header>
 
 		{% if session.get('user_id') %}

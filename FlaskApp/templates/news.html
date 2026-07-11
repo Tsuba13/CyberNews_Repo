@@ -10,15 +10,23 @@
 	</head>
 	<body>
 		<header>
+			<div class="header-left">
+				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+			</div>
 		<p class="MainTitle">CyberNews</p>
 		<nav>
 			<ul>
-				<li class="Gaps"><a href="{{ url_for('root') }}">Home</a><li>
 				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
 				<li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
-				<li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a><li></li>
+				<li class="Gaps"><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a><li></li>
 			</ul>
 		</nav>
+		{% if session.get('user_id') %}
+		<div class="header-right">
+			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+		</div>
+		{% endif %}
 		</header>
 		<main>
 			<h1><p>Greeting message here.</p></h1>

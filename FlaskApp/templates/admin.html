@@ -10,15 +10,22 @@
 </head>
 <body>
     <header>
+        <div class="header-left">
+            <a href="{{ url_for('root') }}" class="btn-home">Home</a>
+        </div>
         <p class="MainTitle">Admin Dashboard</p>
         <nav>
             <ul>
-                <li class="Gaps"><a href="{{ url_for('root') }}">Home</a></li>
                 <li class="Gaps"><a href="{{ url_for('news') }}">News</a></li>
                 <li class="Gaps"><a href="{{ url_for('about') }}">About</a></li>
-                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
             </ul>
         </nav>
+        {% if session.get('user_id') %}
+		<div class="header-right">
+			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+		</div>
+		{% endif %}
     </header>
 
     <main>
@@ -66,10 +73,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-
-        <div class="button-section">
-            <a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
         </div>
     </main>
 

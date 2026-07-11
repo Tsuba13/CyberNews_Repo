@@ -10,34 +10,40 @@
 	</head>
 	<body>
 		<header>
-				<p class="MainTitle">Your message has successfully reached us, {{ data.name }}. Thank you for contacting us!</p>
-		</header>
+            <div class="header-left">
+				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+			</div>
+			<p class="MainTitle">Your message has successfully reached us, {{ data.name }}. Thank you for contacting us!</p>
+            {% if session.get('user_id') %}
+            <div class="header-right">
+                <span class="user-info">{{ session.username }} ({{ session.role }})</span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+            </div>
+            {% endif %}
+        </header>
 		<div class="result-container">
-    <h3>Submitted Details:</h3>
-    <div class="detail-row">
-        <span class="detail-label">Name:</span>
-        <span class="detail-value">{{ data.name }}</span>
-    </div>
-    <div class="detail-row">
-        <span class="detail-label">Age:</span>
-        <span class="detail-value">{{ data.age }}</span>
-    </div>
-    <div class="detail-row">
-        <span class="detail-label">Gender:</span>
-        <span class="detail-value">{{ data.gender }}</span>
-    </div>
-    <div class="detail-row">
-        <span class="detail-label">Title:</span>
-        <span class="detail-value">{{ data.title }}</span>
-    </div>
-    <div class="detail-row">
-        <span class="detail-label">Message:</span>
-        <span class="detail-value">{{ data.message }}</span>
-    </div>
-</div>
-		<div class="button-section">
-			<a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
-		</div>
+            <h3>Submitted Details:</h3>
+            <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value">{{ data.name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Age:</span>
+                <span class="detail-value">{{ data.age }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Gender:</span>
+                <span class="detail-value">{{ data.gender }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Title:</span>
+                <span class="detail-value">{{ data.title }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Message:</span>
+                <span class="detail-value">{{ data.message }}</span>
+            </div>
+        </div>
 		<footer>
 			<small>© CyberNews Tracker TradeMedia</small>
 		</footer>

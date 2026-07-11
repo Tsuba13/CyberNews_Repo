@@ -4,7 +4,7 @@ body {
 	text-align: center;
 }
 
-header, footer {
+footer {
 	background-color: #333;
 	color: white;
 	padding: 20px;
@@ -389,5 +389,113 @@ a:hover {
     }
     .inline-form {
         margin-right: 3px;
+    }
+}
+
+/* HEADER LAYOUT STYLES */
+
+header {
+    background-color: #333;
+	color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    position: relative;
+}
+
+.header-left {
+    flex: 0 0 auto;
+}
+
+.header-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.MainTitle {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+/* Home Button (Left Corner) */
+.btn-home {
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: grey;
+    color: cyan;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
+    font-size: 0.9em;
+}
+
+.btn-home:hover {
+    background-color: cyan;
+    color: black;
+    box-shadow: 0 0 20px rgba(0, 234, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+/* User Info Display */
+.user-info {
+    color: #00eaff;
+    font-weight: bold;
+    font-size: 0.95em;
+    text-shadow: 0 0 8px rgba(0, 234, 255, 0.4);
+}
+
+/* Logout Button (Right Corner) */
+.btn-logout {
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: #d32f2f;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+    font-size: 0.9em;
+}
+
+.btn-logout:hover {
+    background-color: #ff4444;
+    box-shadow: 0 0 20px rgba(211, 47, 47, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Responsive Header */
+@media (max-width: 768px) {
+    header {
+        flex-wrap: wrap;
+        padding: 10px 15px;
+    }
+    
+    .MainTitle {
+        order: -1;
+        flex-basis: 100%;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+    
+    .header-left,
+    .header-right {
+        flex: 1;
+    }
+    
+    .header-right {
+        justify-content: flex-end;
+    }
+    
+    .user-info {
+        display: none;
     }
 }

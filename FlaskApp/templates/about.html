@@ -10,13 +10,18 @@
 	</head>
 	<body>
 		<header>
+			<div class="header-left">
+				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+			</div>
 			<p class="MainTitle">About us!</p>
-			<small>User: {{ session.get('username') }} - Role: {{ session.get('role') }}</small>
+			{% if session.get('user_id') %}
+			<div class="header-right">
+				<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+				<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+			</div>
+			{% endif %}
 		</header>
 		<h2>Made by a student of life...</h2>
-		<div class="button-section">
-			<a href="{{ url_for('root') }}" class="btn-news">Home</a>
-		</div>
 		<footer>
 			<small>© CyberNews Tracker TradeMedia</small>
 		</footer>
