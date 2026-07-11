@@ -70,7 +70,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def fetch_and_save_news(api_key, page_size=20):
+def fetch_and_save_news(api_key, page_size=100):
     if not api_key:
         return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
 
