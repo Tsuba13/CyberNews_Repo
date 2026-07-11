@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from sqlalchemy.sql import func
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+app.config['NEWS_API_KEY'] = os.environ.get('NEWS_API_KEY')
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
 
@@ -48,15 +50,68 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def fetch_and_save_news(api_key, page_size=20):
+    if not api_key:
+        return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
+    from_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    url = 'https://newsapi.org/v2/everything'
+    params = {
+        'q': 'cybersecurity OR "cyber attack" OR "data breach" OR malware OR phishing OR ransomware',
+        'from': from_date,
+        'language': 'en',
+        'sortBy': 'publishedAt',
+        'pageSize': page_size,
+        'apiKey': api_key
+    }
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        if data.get('status') == 'ok':
+            new_count = 0
+            for item in data.get('articles', []):
+                existing = Article.query.filter_by(url=item['url']).first()
+                if existing:
+                    continue
+                pub_date = datetime.fromisoformat(item['publishedAt'].replace('Z', '+00:00'))
+                article = Article(
+                    title=item['title'] or 'No title',
+                    description=item['description'],
+                    url=item['url'],
+                    image_url=item.get('urlToImage'),
+                    source_name=item['source']['name'],
+                    author=item.get('author'),
+                    published_at=pub_date
+                )
+                db.session.add(article)
+                new_count += 1
+            db.session.commit()
+            print(f"Saved {new_count} new articles")
+    except Exception as e:
+        print(f"Fetch error: {e}")
+        db.session.rollback()
+    return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), default='user', nullable=False)
     created_at = db.Column(db.DateTime, default=func.now())
-
     def __repr__(self):
         return f'<User {self.username}>'
+
+class Article(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(500), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(1000), unique=True, nullable=False)
+    image_url = db.Column(db.String(1000), nullable=True)
+    source_name = db.Column(db.String(200), nullable=False)
+    author = db.Column(db.String(200), nullable=True)
+    published_at = db.Column(db.DateTime, nullable=False)
+    fetched_at = db.Column(db.DateTime, default=func.now())
+    def __repr__(self):
+        return f'<Article {self.title[:50]}...>'
 
 with app.app_context():
     db.create_all()
@@ -179,6 +234,17 @@ def about():
 @login_required
 def news():
     return render_template("news.html")
+
+@app.route("/news-live", methods=["GET", "POST"])
+@login_required
+def news_live():
+    api_key = app.config.get('NEWS_API_KEY')
+    
+    if request.method == "POST":
+        fetch_and_save_news(api_key, page_size=20)
+    
+    articles = Article.query.order_by(Article.published_at.desc()).limit(20).all()
+    return render_template("news_live.html", articles=articles)
 
 @app.route("/contact-us", methods=["GET", "POST"])
 @login_required
