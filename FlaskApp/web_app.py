@@ -284,6 +284,13 @@ def news_live():
     articles = Article.query.order_by(Article.published_at.desc()).limit(20).all()
     return render_template("news_live.html", articles=articles)
 
+@app.route("/article/<int:article_id>")
+@login_required
+def view_article(article_id):
+    """Display a single article by its ID."""
+    article = Article.query.get_or_404(article_id)
+    return render_template("article.html", article=article)
+
 @app.route("/contact-us", methods=["GET", "POST"])
 @login_required
 def contact():

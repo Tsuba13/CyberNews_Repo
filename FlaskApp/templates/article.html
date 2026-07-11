@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>CyberNews - {{ article.title[:50] }}</title>
+<base target="_blank">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="{{ url_for('root') }}" class="btn-home">Home</a>
+        </div>
+        <p class="MainTitle">Article View</p>
+        {% if session.get('user_id') %}
+        <div class="header-right">
+            <span class="user-info">{{ session.username }} ({{ session.role }})</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <main>
+        <article class="single-article">
+            {% if article.image_url %}
+            <img src="{{ article.image_url }}" alt="{{ article.title }}" class="single-article-image" onerror="this.style.display='none'">
+            {% endif %}
+
+            <h1 class="single-article-title">{{ article.title }}</h1>
+
+            <div class="single-article-meta">
+                <span class="article-source">{{ article.source_name }}</span>
+                <span class="article-date">{{ article.published_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                {% if article.author %}
+                <span class="article-author">by {{ article.author }}</span>
+                {% endif %}
+            </div>
+
+            <div class="single-article-body">
+                <p>{{ article.description or 'No description available.' }}</p>
+            </div>
+
+            <div class="single-article-actions">
+                <a href="{{ article.url }}" target="_blank" rel="noopener" class="btn-news">Read Full Article</a>
+                <a href="{{ url_for('news_live') }}" class="btn-news">Back to News</a>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        <small>&copy; CyberNews Tracker TradeMedia</small>
+    </footer>
+</body>
+</html>
