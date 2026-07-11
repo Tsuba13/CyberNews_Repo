@@ -16,9 +16,9 @@
         <p class="MainTitle">Live Cybersecurity News</p>
         <nav>
             <ul>
-                <li class="Gaps"><a href="{{ url_for('root') }}">Home</a></li>
-                <li class="Gaps"><a href="{{ url_for('news') }}">Local News</a></li>
-                <li class="Gaps"><a href="{{ url_for('about') }}">About</a></li>
+                <li class="Gaps"><a href="{{ url_for('news') }}" target="_self">Local News</a></li>
+                <li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a><li>
+                <li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a></li>
             </ul>
         </nav>
         {% if session.get('user_id') %}
@@ -33,10 +33,45 @@
         <h1>Latest Cybersecurity Headlines</h1>
         <p class="news-source">Powered by <a href="https://newsapi.org" target="_blank">NewsAPI.org</a></p>
 
-        <!-- Refresh Button -->
+        <!-- Search & Filter Bar -->
+        <div class="filter-bar">
+            <form action="{{ url_for('news_live') }}" method="GET" class="search-form" target="_self">
+                <div class="search-row">
+                    <input type="text" name="q" placeholder="Search articles..." value="{{ request.args.get('q', '') }}" class="search-input">
+                    <button type="submit" class="btn-search">Search</button>
+                </div>
+                <div class="filter-row">
+                    <select name="source" class="filter-select">
+                        <option value="">All Sources</option>
+                        {% for src in sources %}
+                        <option value="{{ src }}" {% if request.args.get('source') == src %}selected{% endif %}>{{ src }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="author" class="filter-select">
+                        <option value="">All Authors</option>
+                        {% for auth in authors %}
+                        <option value="{{ auth }}" {% if request.args.get('author') == auth %}selected{% endif %}>{{ auth }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="sort" class="filter-select">
+                        <option value="newest" {% if request.args.get('sort', 'newest') == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if request.args.get('sort') == 'oldest' %}selected{% endif %}>Oldest First</option>
+                    </select>
+                    <button type="submit" class="btn-filter">Apply</button>
+                    <a href="{{ url_for('news_live') }}" class="btn-clear" target="_self">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Refresh Button (fetch from API) -->
         <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form" target="_self">
             <button type="submit" id="RefreshButton">Refresh Headlines</button>
         </form>
+
+        <!-- Results Count -->
+        {% if total_count is not none %}
+        <p class="results-count">Showing {{ articles|length }} of {{ total_count }} articles</p>
+        {% endif %}
 
         {% if articles %}
         <section id="HeadlinesContainer" class="two-column-grid">
@@ -59,13 +94,29 @@
             </article>
             {% endfor %}
         </section>
+
+        <!-- Load More Button -->
+        {% if has_more %}
+        <div class="load-more-section">
+            <form action="{{ url_for('news_live') }}" method="GET" class="load-more-form" target="_self">
+                <input type="hidden" name="q" value="{{ request.args.get('q', '') }}">
+                <input type="hidden" name="source" value="{{ request.args.get('source', '') }}">
+                <input type="hidden" name="author" value="{{ request.args.get('author', '') }}">
+                <input type="hidden" name="sort" value="{{ request.args.get('sort', 'newest') }}">
+                <input type="hidden" name="limit" value="{{ next_limit }}">
+                <button type="submit" class="btn-news btn-load-more">Load More Articles</button>
+            </form>
+        </div>
+        {% endif %}
+
         {% else %}
         <div class="no-articles">
-            <h3>No articles yet</h3>
-            <p>Click Refresh to fetch the latest cybersecurity news.</p>
+            <h3>No articles found</h3>
+            <p>Try adjusting your search or filters, or click Refresh to fetch new articles.</p>
         </div>
         {% endif %}
     </main>
+
     <footer>
         <small>&copy; CyberNews Tracker TradeMedia</small>
         {% if session.get('role') == 'admin' %}
@@ -76,3 +127,4 @@
     </footer>
 </body>
 </html>
+

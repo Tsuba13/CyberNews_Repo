@@ -16,9 +16,9 @@
 		<p class="MainTitle">CyberNews</p>
 		<nav>
 			<ul>
-				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
+				<li class="Gaps"><a href="{{ url_for('news_live') }}">Live News</a><li></li>
 				<li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
-				<li class="Gaps"><a href="{{ url_for('news_live') }}">Live</a><li></li>
+				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
 			</ul>
 		</nav>
 		{% if session.get('user_id') %}

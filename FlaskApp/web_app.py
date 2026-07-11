@@ -23,8 +23,23 @@ app.config['NEWS_API_KEY'] = os.environ.get('NEWS_API_KEY')
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
 
+# --- PERSISTENT STORAGE CONFIGURATION ---
+# Render mounts persistent disks at /var/data
+# Fallback to project directory for local development
+PERSISTENT_DIR = '/var/data'
+if not os.path.isdir(PERSISTENT_DIR):
+    PERSISTENT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Ensure the persistent directory exists
+os.makedirs(PERSISTENT_DIR, exist_ok=True)
+
+# Session files stored on persistent disk
+SESSION_DIR = os.path.join(PERSISTENT_DIR, 'flask_session')
+os.makedirs(SESSION_DIR, exist_ok=True)
+
 app.config.update({
     'SESSION_TYPE': 'filesystem',
+    'SESSION_FILE_DIR': SESSION_DIR,
     'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
     'SESSION_COOKIE_NAME': 'user_session',
     'SESSION_COOKIE_HTTPONLY': True,
@@ -33,8 +48,8 @@ app.config.update({
 })
 Session(app)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
+# Database stored on persistent disk
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(PERSISTENT_DIR, 'users.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -272,17 +287,64 @@ def news():
 def news_live():
     api_key = app.config.get('NEWS_API_KEY')
 
+    # POST = Refresh button (fetch from API)
     if request.method == "POST":
         if api_key:
             try:
                 fetch_and_save_news(api_key)
             except Exception as e:
                 print(f"FETCH ERROR: {e}")
-        else:
-            print("ERROR: No API key in app.config")
+        return redirect(url_for('news_live', **request.args))
 
-    articles = Article.query.order_by(Article.published_at.desc()).limit(20).all()
-    return render_template("news_live.html", articles=articles)
+    # GET = Build filtered query
+    query = Article.query
+
+    # Search by keyword
+    search_q = request.args.get('q', '').strip()
+    if search_q:
+        pattern = f"%{search_q}%"
+        query = query.filter(
+            db.or_(Article.title.ilike(pattern), Article.description.ilike(pattern))
+        )
+
+    # Filter by source
+    source_filter = request.args.get('source', '').strip()
+    if source_filter:
+        query = query.filter(Article.source_name == source_filter)
+
+    # Filter by author
+    author_filter = request.args.get('author', '').strip()
+    if author_filter:
+        query = query.filter(Article.author == author_filter)
+
+    # Sort
+    sort = request.args.get('sort', 'newest')
+    if sort == 'oldest':
+        query = query.order_by(Article.published_at.asc())
+    else:
+        query = query.order_by(Article.published_at.desc())
+
+    # Pagination
+    total_count = query.count()
+    limit = request.args.get('limit', 10, type=int)
+    limit = max(10, min(limit, 100))
+
+    articles = query.limit(limit).all()
+    has_more = total_count > limit
+    next_limit = limit + 10
+
+    # Dropdown options
+    sources = [s[0] for s in db.session.query(Article.source_name).distinct().all() if s[0]]
+    authors = [a[0] for a in db.session.query(Article.author).distinct().all() if a[0]]
+
+    return render_template("news_live.html",
+        articles=articles,
+        total_count=total_count,
+        has_more=has_more,
+        next_limit=next_limit,
+        sources=sources,
+        authors=authors
+    )
 
 @app.route("/article/<int:article_id>")
 @login_required
