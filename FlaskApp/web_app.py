@@ -40,10 +40,19 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('role') != 'admin':
+            return redirect(url_for('access_denied'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    role = db.Column(db.String(20), default='user', nullable=False)
     created_at = db.Column(db.DateTime, default=func.now())
 
     def __repr__(self):
@@ -73,11 +82,17 @@ def register():
             if existing_user:
                 error = "Username already taken!"
             else:
+                is_first_user = User.query.count() == 0
+                if is_first_user:
+                    role = 'admin'
+                else:
+                    role = 'user'
+
                 hashed_password = generate_password_hash(password)
-                new_user = User(username=username, password_hash=hashed_password)
+                new_user = User(username=username, password_hash=hashed_password, role=role)
                 db.session.add(new_user)
                 db.session.commit()
-                return render_template("register_success.html", username=username)
+                return render_template("register_success.html", username=username, role=role)
     return render_template("register.html", error=error)
 
 @app.route("/login", methods=["GET", "POST"])
@@ -108,6 +123,17 @@ def logout():
     response = redirect(url_for('root'))
     response.delete_cookie(app.config['SESSION_COOKIE_NAME'])
     return response
+
+@app.route("/access_denied")
+@login_required
+def access_denied():
+    return render_template("access_denied.html")
+
+@app.route("/admin_dashboard")
+@login_required
+@admin_required
+def admin_dashboard():
+    return render_template("admin.html")
 
 @app.route("/about-us")
 @login_required
