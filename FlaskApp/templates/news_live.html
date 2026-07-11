@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>CyberNews - Live Cybersecurity News</title>
+<base target="_blank">
+</head>
+<body>
+    <header>
+		<div class="header-left">
+			<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+		</div>
+        <p class="MainTitle">Live Cybersecurity News</p>
+        <nav>
+            <ul>
+                <li class="Gaps"><a href="{{ url_for('root') }}">Home</a></li>
+                <li class="Gaps"><a href="{{ url_for('news') }}">Local News</a></li>
+                <li class="Gaps"><a href="{{ url_for('about') }}">About</a></li>
+            </ul>
+        </nav>
+		{% if session.get('user_id') %}
+		<div class="header-right">
+			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+		</div>
+		{% endif %}
+    </header>
+
+    <main>
+        <h1>Latest Cybersecurity Headlines</h1>
+        <p class="news-source">Powered by <a href="https://newsapi.org" target="_blank">NewsAPI.org</a></p>
+
+        <!-- Refresh Button -->
+        <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form" target="_self">
+            <button type="submit" id="RefreshButton">Refresh Headlines</button>
+        </form>
+
+        {% if articles %}
+        <section id="HeadlinesContainer">
+            {% for article in articles %}
+            <article class="news-article">
+                {% if article.image_url %}
+                <img src="{{ article.image_url }}" alt="{{ article.title }}" class="article-image" onerror="this.style.display='none'">
+                {% endif %}
+                <div class="article-content">
+                    <h3><a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a></h3>
+                    <p class="article-description">{{ article.description or 'No description available.' }}</p>
+                    <div class="article-meta">
+                        <span class="article-source">{{ article.source_name }}</span>
+                        <span class="article-date">{{ article.published_at.strftime('%d/%m/%Y') }}</span>
+                        {% if article.author %}
+                        <span class="article-author">by {{ article.author }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            <hr class="article-divider">
+            {% endfor %}
+        </section>
+        {% else %}
+        <div class="no-articles">
+            <h3>No articles yet</h3>
+            <p>Click Refresh to fetch the latest cybersecurity news.</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <small>&copy; CyberNews Tracker TradeMedia</small>
+    </footer>
+</body>
+</html>
