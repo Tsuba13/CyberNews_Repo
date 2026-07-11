@@ -8,7 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from functools import wraps
 import os
-import requests
+import urllib.request
+import urllib.parse
+import urllib.error
+import json
 
 load_dotenv()
 
@@ -55,42 +58,69 @@ def admin_required(f):
 def fetch_and_save_news(api_key, page_size=20):
     if not api_key:
         return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
+
     from_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-    url = 'https://newsapi.org/v2/everything'
-    params = {
+    base_url = 'https://newsapi.org/v2/everything'
+    params = urllib.parse.urlencode({
         'q': 'cybersecurity OR "cyber attack" OR "data breach" OR malware OR phishing OR ransomware',
         'from': from_date,
         'language': 'en',
         'sortBy': 'publishedAt',
         'pageSize': page_size,
         'apiKey': api_key
-    }
+    })
+    full_url = f"{base_url}?{params}"
+
     try:
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
+        req = urllib.request.Request(full_url, headers={'User-Agent': 'CyberNews/1.0'})
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
         if data.get('status') == 'ok':
             new_count = 0
             for item in data.get('articles', []):
+                if not item.get('url') or not item.get('title'):
+                    continue
+
                 existing = Article.query.filter_by(url=item['url']).first()
                 if existing:
                     continue
-                pub_date = datetime.fromisoformat(item['publishedAt'].replace('Z', '+00:00'))
+
+                try:
+                    pub_date_str = item['publishedAt'].replace('Z', '+00:00')
+                    pub_date = datetime.fromisoformat(pub_date_str)
+                except (ValueError, AttributeError):
+                    pub_date = datetime.now()
+
                 article = Article(
                     title=item['title'] or 'No title',
-                    description=item['description'],
+                    description=item.get('description'),
                     url=item['url'],
                     image_url=item.get('urlToImage'),
-                    source_name=item['source']['name'],
+                    source_name=item.get('source', {}).get('name', 'Unknown'),
                     author=item.get('author'),
                     published_at=pub_date
                 )
                 db.session.add(article)
                 new_count += 1
+
             db.session.commit()
             print(f"Saved {new_count} new articles")
+
+    except urllib.error.HTTPError as e:
+        print(f"HTTP error {e.code}: {e.reason}")
+        try:
+            error_body = json.loads(e.read().decode('utf-8'))
+            print(f"API message: {error_body.get('message')}")
+        except:
+            pass
+    except urllib.error.URLError as e:
+        print(f"Connection error: {e.reason}")
     except Exception as e:
         print(f"Fetch error: {e}")
         db.session.rollback()
+
     return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
 
 class User(db.Model):
@@ -241,17 +271,16 @@ def news():
 @login_required
 def news_live():
     api_key = app.config.get('NEWS_API_KEY')
-    
+
     if request.method == "POST":
         if api_key:
             try:
-                # Your fetch code here
                 fetch_and_save_news(api_key)
             except Exception as e:
-                print(f"FETCH ERROR: {e}")  # Check Render logs for this
+                print(f"FETCH ERROR: {e}")
         else:
             print("ERROR: No API key in app.config")
-    
+
     articles = Article.query.order_by(Article.published_at.desc()).limit(20).all()
     return render_template("news_live.html", articles=articles)
 
