@@ -10,6 +10,9 @@
 </head>
 <body>
     <header>
+        <div class="header-left">
+            <a href="{{ url_for('root') }}" class="btn-home" target="_self">Home</a>
+        </div>
         <p class="MainTitle">Live Cybersecurity News</p>
         <nav>
             <ul>
@@ -31,7 +34,7 @@
         <p class="news-source">Powered by <a href="https://newsapi.org" target="_blank">NewsAPI.org</a></p>
 
         <!-- Refresh Button -->
-        <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form">
+        <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form" target="_self">
             <button type="submit" id="RefreshButton">Refresh Headlines</button>
         </form>
 
@@ -65,6 +68,11 @@
     </main>
     <footer>
         <small>&copy; CyberNews Tracker TradeMedia</small>
+        {% if session.get('role') == 'admin' %}
+        <div class="footer-right">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
+        </div>
+        {% endif %}
     </footer>
 </body>
 </html>

@@ -5,16 +5,48 @@ body {
 }
 
 footer {
-	background-color: #333;
-	color: white;
-	padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background-color: #333;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-footer {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	width: 100%;
+footer small {
+    flex: 1;
+    text-align: center;
+    font-size: 0.85em;
+    color: #ccc;
+}
+
+.footer-right {
+    flex: 0 0 auto;
+}
+
+.btn-admin-footer {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #00b8cc;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(0, 184, 204, 0.3);
+}
+
+.btn-admin-footer:hover {
+    background-color: #00eaff;
+    color: #0a0a0f;
+    box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
+    transform: translateY(-1px);
 }
 
 main {

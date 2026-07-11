@@ -26,7 +26,7 @@
 				<a href="{{ url_for('news') }}" class="btn-news">News</a>
 			</div>
 			<div class="button-section">
-				<a href="{{ url_for('logout') }}" class="btn-news">Log Out</a>
+				<a href="{{ url_for('logout') }}" class="btn-news" target="_self">Log Out</a>
 			</div>
 		</div>
 		{% else %}
@@ -61,7 +61,12 @@
 		<script src="{{ url_for('static', filename='CookieNoticePopup.js') }}"></script>
 
 		<footer>
-			<small>© CyberNews Tracker TradeMedia</small>
+			<small>&copy; CyberNews Tracker TradeMedia</small>
+			{% if session.get('role') == 'admin' %}
+			<div class="footer-right">
+				<a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
+			</div>
+			{% endif %}
 		</footer>
 	</body>
 </html>

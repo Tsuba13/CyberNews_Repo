@@ -44,7 +44,12 @@
                 <span class="detail-value">{{ data.message }}</span>
             </div>
         </div>
-		<footer>
-			<small>© CyberNews Tracker TradeMedia</small>
+        <footer>
+			<small>&copy; CyberNews Tracker TradeMedia</small>
+			{% if session.get('role') == 'admin' %}
+			<div class="footer-right">
+				<a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
+			</div>
+			{% endif %}
 		</footer>
 	</body>
