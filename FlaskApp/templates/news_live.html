@@ -10,23 +10,15 @@
 </head>
 <body>
     <header>
-		<div class="header-left">
-			<a href="{{ url_for('root') }}" class="btn-home">Home</a>
-		</div>
         <p class="MainTitle">Live Cybersecurity News</p>
         <nav>
             <ul>
                 <li class="Gaps"><a href="{{ url_for('root') }}">Home</a></li>
                 <li class="Gaps"><a href="{{ url_for('news') }}">Local News</a></li>
                 <li class="Gaps"><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
             </ul>
         </nav>
-		{% if session.get('user_id') %}
-		<div class="header-right">
-			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
-			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
-		</div>
-		{% endif %}
     </header>
 
     <main>
@@ -34,12 +26,12 @@
         <p class="news-source">Powered by <a href="https://newsapi.org" target="_blank">NewsAPI.org</a></p>
 
         <!-- Refresh Button -->
-        <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form" target="_self">
+        <form action="{{ url_for('news_live') }}" method="POST" class="refresh-form">
             <button type="submit" id="RefreshButton">Refresh Headlines</button>
         </form>
 
         {% if articles %}
-        <section id="HeadlinesContainer">
+        <section id="HeadlinesContainer" class="two-column-grid">
             {% for article in articles %}
             <article class="news-article">
                 {% if article.image_url %}
@@ -57,7 +49,6 @@
                     </div>
                 </div>
             </article>
-            <hr class="article-divider">
             {% endfor %}
         </section>
         {% else %}
@@ -66,6 +57,10 @@
             <p>Click Refresh to fetch the latest cybersecurity news.</p>
         </div>
         {% endif %}
+
+        <div class="button-section">
+            <a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
+        </div>
     </main>
 
     <footer>
