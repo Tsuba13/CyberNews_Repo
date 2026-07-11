@@ -1,23 +1,80 @@
 <!DOCTYPE html>
-
 <html lang="en">
-	<head>
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-	    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-	    <title>CyberNews - Admin Dashboard</title>
-	</head>
-	<body>
-		<header>
-				<p class="MainTitle">Admin Dashboard!</p>
-		</header>
-		<h2>Made by a student of life...</h2>
-		<div class="button-section">
-			<a href="{{ url_for('root') }}" class="btn-news">Home</a>
-		</div>
-		<footer>
-			<small>© CyberNews Tracker TradeMedia</small>
-		</footer>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>CyberNews - Admin Dashboard</title>
+<base target="_blank">
+</head>
+<body>
+    <header>
+        <p class="MainTitle">Admin Dashboard</p>
+        <nav>
+            <ul>
+                <li class="Gaps"><a href="{{ url_for('root') }}">Home</a></li>
+                <li class="Gaps"><a href="{{ url_for('news') }}">News</a></li>
+                <li class="Gaps"><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Welcome, {{ session.username }} (Admin)</h2>
+
+        {% if message %}
+        <div class="admin-message">{{ message }}</div>
+        {% endif %}
+
+        <div class="admin-table-container">
+            <h3>Registered Users</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="{% if user.role == 'admin' %}admin-row{% endif %}">
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user.role }}">{{ user.role }}</span>
+                        </td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'N/A' }}</td>
+                        <td class="action-cell">
+                            {% if user.id != session.user_id %}
+                            <form action="{{ url_for('admin_toggle_role', user_id=user.id) }}" method="POST" class="inline-form">
+                                <button type="submit" class="btn-action btn-promote">
+                                    {% if user.role == 'admin' %}Demote{% else %}Promote{% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form action="{{ url_for('admin_delete_user', user_id=user.id) }}" method="POST" class="inline-form" onsubmit="return confirm('Delete account {{ user.username }}? This cannot be undone.');">
+                                <button type="submit" class="btn-action btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-section">
+            <a href="{{ url_for('root') }}" class="btn-news">Go back to home</a>
+        </div>
+    </main>
+
+    <footer>
+        <small>&copy; CyberNews Tracker TradeMedia</small>
+    </footer>
+</body>
 </html>

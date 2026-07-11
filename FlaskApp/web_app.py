@@ -21,7 +21,7 @@ app.config.update({
     'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
     'SESSION_COOKIE_NAME': 'user_session',
     'SESSION_COOKIE_HTTPONLY': True,
-    'SESSION_COOKIE_SECURE': True,
+    'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_SAMESITE': 'Lax'
 })
 Session(app)
@@ -82,8 +82,7 @@ def register():
             if existing_user:
                 error = "Username already taken!"
             else:
-                is_first_user = User.query.count() == 0
-                if is_first_user:
+                if User.query.count() == 0:
                     role = 'admin'
                 else:
                     role = 'user'
@@ -111,6 +110,7 @@ def login():
                 session.permanent = True
                 session['user_id'] = user.id
                 session['username'] = user.username
+                session['role'] = user.role
                 return redirect(url_for('news'))
         if error and request.referrer and 'root' in request.referrer:
             return redirect(url_for('root', error=error))
@@ -133,7 +133,42 @@ def access_denied():
 @login_required
 @admin_required
 def admin_dashboard():
-    return render_template("admin.html")
+    message = request.args.get('message')
+    all_users = User.query.order_by(User.id).all()
+    return render_template("admin.html", users=all_users, message=message)
+
+@app.route("/admin/toggle-role/<int:user_id>", methods=["POST"])
+@login_required
+@admin_required
+def admin_toggle_role(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == session.get('user_id'):
+        return redirect(url_for('admin_dashboard', message='Cannot demote your own account.'))
+    user.role = 'user' if user.role == 'admin' else 'admin'
+    db.session.commit()
+    action = 'promoted to admin' if user.role == 'admin' else 'demoted to user'
+    return redirect(url_for('admin_dashboard', message=f'{user.username} {action}'))
+
+
+@app.route("/admin/delete-user/<int:user_id>", methods=["POST"])
+@login_required
+@admin_required
+def admin_delete_user(user_id):
+    """Delete a user account. If deleting yourself, log out immediately."""
+    user = User.query.get_or_404(user_id)
+    is_self = user.id == session.get('user_id')
+    username = user.username
+
+    db.session.delete(user)
+    db.session.commit()
+
+    if is_self:
+        response = redirect(url_for('root'))
+        session.clear()
+        response.delete_cookie(app.config['SESSION_COOKIE_NAME'])
+        return response
+
+    return redirect(url_for('admin_dashboard', message=f'Account {username} deleted'))
 
 @app.route("/about-us")
 @login_required

@@ -10,7 +10,8 @@
 	</head>
 	<body>
 		<header>
-				<p class="MainTitle">About us!</p>
+			<p class="MainTitle">About us!</p>
+			<small>User: {{ session.get('username') }} - Role: {{ session.get('role') }}</small>
 		</header>
 		<h2>Made by a student of life...</h2>
 		<div class="button-section">
