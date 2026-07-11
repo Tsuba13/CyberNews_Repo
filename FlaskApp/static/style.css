@@ -500,73 +500,50 @@ header {
     }
 }
 
-/* TWO-COLUMN GRID — WIDER & CLEARER SPACING */
+/* TWO-COLUMN GRID — DISTINCT CARDS */
 
 .two-column-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 30px;                  /* More space between cards */
-    max-width: 1400px;          /* Wider container */
+    gap: 25px;
+    max-width: 1400px;
     margin: 0 auto 40px;
     padding: 0 20px;
+    background: transparent;    /* No dark background */
+    border: none;
+    box-shadow: none;
 }
 
+/* EACH ARTICLE IS A SEPARATE WHITE RECTANGLE */
 .two-column-grid .news-article {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    padding: 25px;              /* More internal padding */
-    background-color: #fff;
+    gap: 12px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 2px solid #e0e0e0;           /* Visible grey border */
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    text-align: left;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);  /* Prominent shadow */
+    min-height: 300px;
 }
 
 .two-column-grid .news-article:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-color: #00eaff;
 }
 
 .two-column-grid .article-image {
     width: 100%;
-    height: 200px;              /* Taller images */
+    height: 180px;
     object-fit: cover;
-    border-radius: 4px;
-}
-
-.two-column-grid .article-content h3 {
-    margin: 0 0 12px 0;
-    font-size: 1.15em;          /* Larger titles */
-    line-height: 1.3;
-}
-
-.two-column-grid .article-description {
-    color: #555;
-    font-size: 0.95em;
-    line-height: 1.5;
-    margin: 0 0 15px 0;
-    flex: 1;
+    border-radius: 6px;
+    border: 1px solid #eee;
 }
 
 .two-column-grid .article-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    font-size: 0.85em;
-    color: #888;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid #eee;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .two-column-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
+    padding-top: 10px;
+    border-top: 2px solid #f0f0f0;
 }
 
 /* SINGLE ARTICLE VIEW */
