@@ -42,6 +42,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+@app.context_processor
+def inject_notification_count():
+    """Make unread notification count available in all templates."""
+    if 'user_id' in session and session.get('role') == 'admin':
+        count = Notification.query.filter_by(
+            recipient_id=session['user_id'], 
+            is_read=False
+        ).count()
+        return {'unread_notification_count': count}
+    return {'unread_notification_count': 0}
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -195,6 +206,34 @@ def fetch_full_article_content(url):
         print(f"Error fetching article content: {e}")
         return None
 
+def notify_admins(title, message, link=None):
+    """Create a notification for every admin user."""
+    admins = User.query.filter_by(role='admin').all()
+    for admin in admins:
+        notification = Notification(
+            recipient_id=admin.id,
+            title=title,
+            message=message,
+            link=link
+        )
+        db.session.add(notification)
+    db.session.commit()
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    id = db.Column(db.Integer, primary_key=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    title = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    link = db.Column(db.String(500), nullable=True)  # Optional link to related content
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=func.now(), nullable=False)
+
+    recipient = db.relationship('User', backref='notifications')
+
+    def __repr__(self):
+        return f'<Notification {self.title[:30]}...>'
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -310,7 +349,6 @@ def admin_toggle_role(user_id):
     action = 'promoted to admin' if user.role == 'admin' else 'demoted to user'
     return redirect(url_for('admin_dashboard', message=f'{user.username} {action}'))
 
-
 @app.route("/admin/delete-user/<int:user_id>", methods=["POST"])
 @login_required
 @admin_required
@@ -330,6 +368,77 @@ def admin_delete_user(user_id):
         return response
 
     return redirect(url_for('admin_dashboard', message=f'Account {username} deleted'))
+
+@app.route("/admin/notifications")
+@login_required
+@admin_required
+def admin_notifications():
+    """Display all notifications for the logged-in admin."""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    # Get unread and read notifications separately
+    unread_notifications = Notification.query.filter_by(
+        recipient_id=session['user_id'], 
+        is_read=False
+    ).order_by(Notification.created_at.desc()).all()
+    
+    read_notifications = Notification.query.filter_by(
+        recipient_id=session['user_id'], 
+        is_read=True
+    ).order_by(Notification.created_at.desc()).limit(per_page).all()
+    
+    # Count unread
+    unread_count = len(unread_notifications)
+    
+    return render_template("admin_notifications.html",
+        unread_notifications=unread_notifications,
+        read_notifications=read_notifications,
+        unread_count=unread_count
+    )
+
+@app.route("/admin/notifications/<int:notification_id>/read", methods=["POST"])
+@login_required
+@admin_required
+def mark_notification_read(notification_id):
+    """Mark a single notification as read."""
+    notification = Notification.query.filter_by(
+        id=notification_id, 
+        recipient_id=session['user_id']
+    ).first_or_404()
+    
+    notification.is_read = True
+    db.session.commit()
+    
+    return redirect(url_for('admin_notifications'))
+
+@app.route("/admin/notifications/mark-all-read", methods=["POST"])
+@login_required
+@admin_required
+def mark_all_notifications_read():
+    """Mark all notifications as read for the current admin."""
+    Notification.query.filter_by(
+        recipient_id=session['user_id'], 
+        is_read=False
+    ).update({'is_read': True})
+    db.session.commit()
+    
+    return redirect(url_for('admin_notifications'))
+
+@app.route("/admin/notifications/<int:notification_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def delete_notification(notification_id):
+    """Delete a notification."""
+    notification = Notification.query.filter_by(
+        id=notification_id, 
+        recipient_id=session['user_id']
+    ).first_or_404()
+    
+    db.session.delete(notification)
+    db.session.commit()
+    
+    return redirect(url_for('admin_notifications'))
 
 @app.route("/about-us")
 @login_required
@@ -440,12 +549,19 @@ def contact():
             "title": request.form.get("title"),
             "message": request.form.get("message")
         }
+        
+        # Notify all admins about the new message
+        notify_admins(
+            title=f"New Contact Message: {form_data['title']}",
+            message=f"From: {form_data['name']} (Age: {form_data['age']}, Gender: {form_data['gender']})\n\nMessage:\n{form_data['message']}",
+            link=url_for('admin_notifications', _external=True)
+        )
+        
         return render_template("result.html", data=form_data, method="POST")
     elif request.method == "GET":
-        return  render_template("form.html")
+        return render_template("form.html")
     else:
-     return "Bad request!", 400
+        return "Bad request!", 400
 
 if __name__ == "__main__":
     app.run(debug=False)
-    

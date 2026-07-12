@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>CyberNews - Admin Notifications</title>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="{{ url_for('root') }}" class="btn-home" target="_self">Home</a>
+        </div>
+        <p class="MainTitle">CyberNews</p>
+        <nav>
+            <ul>
+                <li class="Gaps"><a href="{{ url_for('news') }}" target="_self">Static News</a></li>
+                <li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a></li>
+                <li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a></li>
+                {% if session.get('role') == 'admin' %}
+                <li class="Gaps">
+                    <a href="{{ url_for('admin_notifications') }}" target="_self">
+                        Notifications
+                        {% if unread_notification_count > 0 %}
+                        <span class="notification-badge">{{ unread_notification_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% if session.get('user_id') %}
+        <div class="header-right">
+            <span class="user-info">{{ session.username }} ({{ session.role }})</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout" target="_self">Log Out</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="notifications-container">
+        <h2>Admin Notifications</h2>
+        
+        {% if unread_notifications %}
+        <div class="notification-section">
+            <h3>Unread Notifications ({{ unread_notifications|length }})</h3>
+            <form action="{{ url_for('mark_all_notifications_read') }}" method="POST" style="margin-bottom: 15px;">
+                <button type="submit" class="btn-mark-all">Mark All as Read</button>
+            </form>
+            {% for notification in unread_notifications %}
+            <div class="notification-card unread">
+                <div class="notification-header">
+                    <h4 class="notification-title">{{ notification.title }}</h4>
+                    <span class="notification-time">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="notification-body">{{ notification.message }}</div>
+                <div class="notification-actions">
+                    <form action="{{ url_for('mark_notification_read', notification_id=notification.id) }}" method="POST">
+                        <button type="submit" class="btn-mark-read">Mark as Read</button>
+                    </form>
+                    <form action="{{ url_for('delete_notification', notification_id=notification.id) }}" method="POST" onsubmit="return confirm('Delete this notification?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="notification-section">
+            <h3>Read Notifications</h3>
+            {% if read_notifications %}
+            {% for notification in read_notifications %}
+            <div class="notification-card read">
+                <div class="notification-header">
+                    <h4 class="notification-title">{{ notification.title }}</h4>
+                    <span class="notification-time">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="notification-body">{{ notification.message }}</div>
+                <div class="notification-actions">
+                    <form action="{{ url_for('delete_notification', notification_id=notification.id) }}" method="POST" onsubmit="return confirm('Delete this notification?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">No notifications yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <small>&copy; CyberNews Tracker TradeMedia</small>
+        <div class="footer-right">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
+        </div>
+    </footer>
+</body>
+</html>
