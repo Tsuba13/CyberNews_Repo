@@ -151,9 +151,9 @@ def fetch_full_article_content(url):
 
         # Method 2: Common article content containers
         content_patterns = [
-            r'<article[^>]*>(.*?)</article>',
-            r'<div[^>]*class=["'][^"']*(?:article|content|story|post)[^"']*["'][^>]*>(.*?)</div>',
-            r'<div[^>]*id=["'][^"']*(?:article|content|story|post)["'][^>]*>(.*?)</div>',
+            r"""<article[^>]*>(.*?)</article>""",
+            r"""<div[^>]*class=["'][^"']*(?:article|content|story|post)[^"']*["'][^>]*>(.*?)</div>""",
+            r"""<div[^>]*id=["'][^"']*(?:article|content|story|post)["'][^>]*>(.*?)</div>""",
         ]
 
         for pattern in content_patterns:
