@@ -10,17 +10,24 @@
 	</head>
 	<body>
 		<header>
-            <div class="header-left">
-				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+			<div class="header-left">
+				<a href="{{ url_for('root') }}" class="btn-home" target="_self">Home</a>
 			</div>
-			<p class="MainTitle">Your message has successfully reached us, {{ data.name }}. Thank you for contacting us!</p>
-            {% if session.get('user_id') %}
-            <div class="header-right">
-                <span class="user-info">{{ session.username }} ({{ session.role }})</span>
-                <a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
-            </div>
-            {% endif %}
-        </header>
+		<p class="MainTitle">CyberNews</p>
+		<nav>
+			<ul>
+				<li class="Gaps"><a href="{{ url_for('news') }}">Static News</a><li></li>
+				<li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
+				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
+			</ul>
+		</nav>
+		{% if session.get('user_id') %}
+		<div class="header-right">
+			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+		</div>
+		{% endif %}
+		</header>
 		<div class="result-container">
             <h3>Submitted Details:</h3>
             <div class="detail-row">

@@ -11,17 +11,88 @@
 	<body>
 		<header>
 			<div class="header-left">
-				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+				<a href="{{ url_for('root') }}" class="btn-home" target="_self">Home</a>
 			</div>
-			<p class="MainTitle">About us!</p>
-			{% if session.get('user_id') %}
-			<div class="header-right">
-				<span class="user-info">{{ session.username }} ({{ session.role }})</span>
-				<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
-			</div>
-			{% endif %}
+		<p class="MainTitle">CyberNews</p>
+		<nav>
+			<ul>
+				<li class="Gaps"><a href="{{ url_for('news') }}">Static News</a><li></li>
+				<li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
+				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
+			</ul>
+		</nav>
+		{% if session.get('user_id') %}
+		<div class="header-right">
+			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
+			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+		</div>
+		{% endif %}
 		</header>
-		<h2>Made by a student of life...</h2>
+			
+		<main class="about-main">
+			<div class="about-intro">
+				<h2>Cyber News</h2>
+				<p class="about-tagline">A website made for <strong>educational purposes</strong>.</p>
+				<div class="about-credits">
+					<p><span class="credit-label">Author:</span> Mhd Najeeb Mshaweh</p>
+					<p><span class="credit-label">Teaching body:</span> Cybersteps</p>
+				</div>
+			</div>
+	
+			<div class="tech-stack">
+				<h2>Technologies Used</h2>
+	
+				<div class="tech-category">
+					<h3>Backend</h3>
+					<ul class="tech-list">
+						<li><strong>Python</strong> — the core language</li>
+						<li><strong>Flask</strong> — web framework (routing, sessions, templates, request handling)</li>
+						<li><strong>SQLAlchemy</strong> — ORM for database operations</li>
+						<li><strong>Flask-Session</strong> — server-side filesystem sessions</li>
+						<li><strong>Werkzeug</strong> — password hashing and WSGI utilities</li>
+					</ul>
+				</div>
+	
+				<div class="tech-category">
+					<h3>Database</h3>
+					<ul class="tech-list">
+						<li><strong>SQLite</strong> — local file-based relational database (users, articles)</li>
+					</ul>
+				</div>
+	
+				<div class="tech-category">
+					<h3>Frontend</h3>
+					<ul class="tech-list">
+						<li><strong>Jinja2</strong> — templating engine (via Flask)</li>
+						<li><strong>Vanilla JavaScript</strong> — client-side interactivity (greeting, article refresher, cookie notice)</li>
+						<li><strong>CSS3</strong> — custom styling, no framework</li>
+					</ul>
+				</div>
+	
+				<div class="tech-category">
+					<h3>External APIs</h3>
+					<ul class="tech-list">
+						<li><strong>NewsAPI</strong> — fetches live cybersecurity news articles</li>
+					</ul>
+				</div>
+	
+				<div class="tech-category">
+					<h3>Infrastructure / Deployment</h3>
+					<ul class="tech-list">
+						<li><strong>Render</strong> — hosting platform (web service + persistent disk)</li>
+					</ul>
+				</div>
+	
+				<div class="tech-category">
+					<h3>Supporting Libraries</h3>
+					<ul class="tech-list">
+						<li><strong>python-dotenv</strong> — environment variable management</li>
+						<li><strong>urllib</strong> — HTTP requests to NewsAPI</li>
+					</ul>
+				</div>
+			</div>
+		</main>
+
 		<footer>
 			<small>&copy; CyberNews Tracker TradeMedia</small>
 			{% if session.get('role') == 'admin' %}

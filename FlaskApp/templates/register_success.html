@@ -19,17 +19,11 @@
 		<h2>Your account has been created successfully. You can now log in to your account.</h2>
 
 		<div class="button-section">
-			<a href="{{ url_for('root') }}" class="btn-news">Go to Home</a>
 			<a href="{{ url_for('contact') }}" class="btn-news">Log In</a>
 		</div>
 
 		<footer>
 			<small>&copy; CyberNews Tracker TradeMedia</small>
-			{% if session.get('role') == 'admin' %}
-			<div class="footer-right">
-				<a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
-			</div>
-			{% endif %}
 		</footer>
 	</body>
 </html>
