@@ -2,7 +2,7 @@ my_env/
 .env
 __pycache__/
 *.pyc
-users.db
+*.db
 *.db-journal
 flask_session/
 *.docx
