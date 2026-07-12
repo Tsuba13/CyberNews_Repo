@@ -18,16 +18,6 @@
                 <li class="Gaps"><a href="{{ url_for('news') }}" target="_self">Static News</a></li>
                 <li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a></li>
                 <li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a></li>
-                {% if session.get('role') == 'admin' %}
-                <li class="Gaps">
-                    <a href="{{ url_for('admin_notifications') }}" target="_self">
-                        Notifications
-                        {% if unread_notification_count > 0 %}
-                        <span class="notification-badge">{{ unread_notification_count }}</span>
-                        {% endif %}
-                    </a>
-                </li>
-                {% endif %}
             </ul>
         </nav>
         {% if session.get('user_id') %}
@@ -92,6 +82,14 @@
 
     <footer>
         <small>&copy; CyberNews Tracker TradeMedia</small>
+        <div class="footer-right">
+            <a href="{{ url_for('admin_notifications') }}" class="btn-admin-footer" class="Gaps" target="_self">
+                Notifications
+                {% if unread_notification_count > 0 %}
+                <span class="notification-badge">{{ unread_notification_count }}</span>
+                {% endif %}
+            </a>
+        </div>
         <div class="footer-right">
             <a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
         </div>
