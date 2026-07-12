@@ -35,6 +35,9 @@ app.config.update({
 Session(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/data/users.db'
+app.config['SQLALCHEMY_BINDS'] = {
+    'articles': 'sqlite:////var/data/articles.db'
+}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -202,6 +205,7 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 class Article(db.Model):
+    __bind_key__ = 'articles'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text, nullable=True)
@@ -444,3 +448,4 @@ def contact():
 
 if __name__ == "__main__":
     app.run(debug=False)
+    
