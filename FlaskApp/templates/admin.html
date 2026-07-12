@@ -79,6 +79,14 @@
 
     <footer>
         <small>&copy; CyberNews Tracker TradeMedia</small>
+        <div class="footer-right">
+            <a href="{{ url_for('admin_notifications') }}" class="btn-admin-footer" class="Gaps" target="_self">
+                Notifications
+                {% if unread_notification_count > 0 %}
+                <span class="notification-badge">{{ unread_notification_count }}</span>
+                {% endif %}
+            </a>
+        </div>
     </footer>
 </body>
 </html>

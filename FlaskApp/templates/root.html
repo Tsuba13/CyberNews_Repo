@@ -71,6 +71,14 @@
 			<small>&copy; CyberNews Tracker TradeMedia</small>
 			{% if session.get('role') == 'admin' %}
 			<div class="footer-right">
+				<a href="{{ url_for('admin_notifications') }}" class="btn-admin-footer" class="Gaps" target="_self">
+					Notifications
+					{% if unread_notification_count > 0 %}
+					<span class="notification-badge">{{ unread_notification_count }}</span>
+					{% endif %}
+				</a>
+			</div>
+			<div class="footer-right">
 				<a href="{{ url_for('admin_dashboard') }}" class="btn-admin-footer" target="_self">Admin Dashboard</a>
 			</div>
 			{% endif %}
