@@ -25,6 +25,7 @@ if not app.secret_key:
 
 app.config.update({
     'SESSION_TYPE': 'filesystem',
+    'SESSION_FILE_DIR': '/var/data/flask_session',
     'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
     'SESSION_COOKIE_NAME': 'user_session',
     'SESSION_COOKIE_HTTPONLY': True,
@@ -33,8 +34,7 @@ app.config.update({
 })
 Session(app)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////var/data/users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -439,3 +439,4 @@ def contact():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
