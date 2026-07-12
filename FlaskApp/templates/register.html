@@ -11,14 +11,14 @@
 	<body>
 		<header>
 			<div class="header-left">
-				<a href="{{ url_for('root') }}" class="btn-home">Home</a>
+				<a href="{{ url_for('root') }}" class="btn-home" target="_self">Home</a>
 			</div>
 			<p class="MainTitle">Create Your Account</p>
 		</header>
 
 		<div class="form-container">
 			<h2>Registration Form</h2>
-			<form action="{{ url_for('register') }}" method="POST">
+			<form action="{{ url_for('register') }}" method="POST" target="_self">
 				<div class="form-group">
 					<label for="username">Username*</label>
 					<input type="text" id="username" name="username" placeholder="Choose a username" required>

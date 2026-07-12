@@ -23,23 +23,8 @@ app.config['NEWS_API_KEY'] = os.environ.get('NEWS_API_KEY')
 if not app.secret_key:
     raise ValueError("FLASK_SECRET_KEY environment variable is not set")
 
-# --- PERSISTENT STORAGE CONFIGURATION ---
-# Render mounts persistent disks at /var/data
-# Fallback to project directory for local development
-PERSISTENT_DIR = '/var/data'
-if not os.path.isdir(PERSISTENT_DIR):
-    PERSISTENT_DIR = os.path.abspath(os.path.dirname(__file__))
-
-# Ensure the persistent directory exists
-os.makedirs(PERSISTENT_DIR, exist_ok=True)
-
-# Session files stored on persistent disk
-SESSION_DIR = os.path.join(PERSISTENT_DIR, 'flask_session')
-os.makedirs(SESSION_DIR, exist_ok=True)
-
 app.config.update({
     'SESSION_TYPE': 'filesystem',
-    'SESSION_FILE_DIR': SESSION_DIR,
     'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
     'SESSION_COOKIE_NAME': 'user_session',
     'SESSION_COOKIE_HTTPONLY': True,
@@ -48,8 +33,8 @@ app.config.update({
 })
 Session(app)
 
-# Database stored on persistent disk
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(PERSISTENT_DIR, 'users.db')
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -111,6 +96,7 @@ def fetch_and_save_news(api_key, page_size=100):
                 article = Article(
                     title=item['title'] or 'No title',
                     description=item.get('description'),
+                    content=item.get('content'),
                     url=item['url'],
                     image_url=item.get('urlToImage'),
                     source_name=item.get('source', {}).get('name', 'Unknown'),
@@ -138,6 +124,70 @@ def fetch_and_save_news(api_key, page_size=100):
 
     return Article.query.order_by(Article.published_at.desc()).limit(page_size).all()
 
+
+def fetch_full_article_content(url):
+    """Fetch and extract article text from a given URL."""
+    if not url:
+        return None
+
+    try:
+        req = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        })
+
+        with urllib.request.urlopen(req, timeout=15) as response:
+            html = response.read().decode('utf-8', errors='ignore')
+
+        # Try to extract article content using common patterns
+        # First, try to find JSON-LD articleBody
+        import re
+
+        # Method 1: JSON-LD articleBody
+        jsonld_match = re.search(r'"articleBody"\s*:\s*"([^"]+)"', html)
+        if jsonld_match:
+            text = jsonld_match.group(1)
+            text = text.replace('\n', '
+').replace('\"', '"').replace('\\', '\')
+            return text.strip()
+
+        # Method 2: Common article content containers
+        content_patterns = [
+            r'<article[^>]*>(.*?)</article>',
+            r'<div[^>]*class=["'][^"']*(?:article|content|story|post)[^"']*["'][^>]*>(.*?)</div>',
+            r'<div[^>]*id=["'][^"']*(?:article|content|story|post)["'][^>]*>(.*?)</div>',
+        ]
+
+        for pattern in content_patterns:
+            match = re.search(pattern, html, re.DOTALL | re.IGNORECASE)
+            if match:
+                text = match.group(1)
+                # Strip HTML tags
+                text = re.sub(r'<[^>]+>', ' ', text)
+                text = re.sub(r'\s+', ' ', text).strip()
+                if len(text) > 200:
+                    return text
+
+        # Method 3: Extract all paragraph text from body
+        body_match = re.search(r'<body[^>]*>(.*?)</body>', html, re.DOTALL | re.IGNORECASE)
+        if body_match:
+            text = body_match.group(1)
+            # Extract paragraphs
+            paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', text, re.DOTALL | re.IGNORECASE)
+            clean_paragraphs = []
+            for p in paragraphs:
+                p = re.sub(r'<[^>]+>', ' ', p)
+                p = re.sub(r'\s+', ' ', p).strip()
+                if len(p) > 50:
+                    clean_paragraphs.append(p)
+            if clean_paragraphs:
+                return '\n\n'.join(clean_paragraphs)
+
+        return None
+
+    except Exception as e:
+        print(f"Error fetching article content: {e}")
+        return None
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -151,6 +201,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=True)
     url = db.Column(db.String(1000), unique=True, nullable=False)
     image_url = db.Column(db.String(1000), nullable=True)
     source_name = db.Column(db.String(200), nullable=False)
@@ -286,7 +337,7 @@ def news():
 @login_required
 def news_live():
     api_key = app.config.get('NEWS_API_KEY')
-
+    
     # POST = Refresh button (fetch from API)
     if request.method == "POST":
         if api_key:
@@ -295,10 +346,10 @@ def news_live():
             except Exception as e:
                 print(f"FETCH ERROR: {e}")
         return redirect(url_for('news_live', **request.args))
-
+    
     # GET = Build filtered query
     query = Article.query
-
+    
     # Search by keyword
     search_q = request.args.get('q', '').strip()
     if search_q:
@@ -306,37 +357,37 @@ def news_live():
         query = query.filter(
             db.or_(Article.title.ilike(pattern), Article.description.ilike(pattern))
         )
-
+    
     # Filter by source
     source_filter = request.args.get('source', '').strip()
     if source_filter:
         query = query.filter(Article.source_name == source_filter)
-
+    
     # Filter by author
     author_filter = request.args.get('author', '').strip()
     if author_filter:
         query = query.filter(Article.author == author_filter)
-
+    
     # Sort
     sort = request.args.get('sort', 'newest')
     if sort == 'oldest':
         query = query.order_by(Article.published_at.asc())
     else:
         query = query.order_by(Article.published_at.desc())
-
+    
     # Pagination
     total_count = query.count()
     limit = request.args.get('limit', 20, type=int)
-    limit = max(20, min(limit, 100))
-
+    limit = max(20, min(limit, 120))
+    
     articles = query.limit(limit).all()
     has_more = total_count > limit
     next_limit = limit + 10
-
+    
     # Dropdown options
     sources = [s[0] for s in db.session.query(Article.source_name).distinct().all() if s[0]]
     authors = [a[0] for a in db.session.query(Article.author).distinct().all() if a[0]]
-
+    
     return render_template("news_live.html",
         articles=articles,
         total_count=total_count,
@@ -352,6 +403,23 @@ def view_article(article_id):
     """Display a single article by its ID."""
     article = Article.query.get_or_404(article_id)
     return render_template("article.html", article=article)
+
+@app.route("/article/<int:article_id>/fetch-content", methods=["POST"])
+@login_required
+def fetch_article_content(article_id):
+    """Fetch full article content from the source URL and save it."""
+    article = Article.query.get_or_404(article_id)
+
+    full_content = fetch_full_article_content(article.url)
+    if full_content:
+        article.content = full_content
+        db.session.commit()
+        message = "Full article content loaded successfully."
+    else:
+        message = "Could not extract full content from the source. Showing available excerpt."
+
+    return redirect(url_for('view_article', article_id=article.id, message=message))
+
 
 @app.route("/contact-us", methods=["GET", "POST"])
 @login_required

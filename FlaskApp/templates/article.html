@@ -16,15 +16,15 @@
     <p class="MainTitle">CyberNews</p>
     <nav>
         <ul>
-            <li class="Gaps"><a href="{{ url_for('news_live') }}">Live News</a><li></li>
-            <li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
-            <li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
+            <li class="Gaps"><a href="{{ url_for('news_live') }}" target="_self">Live News</a><li></li>
+            <li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a><li>
+            <li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a><li>
         </ul>
     </nav>
     {% if session.get('user_id') %}
     <div class="header-right">
         <span class="user-info">{{ session.username }} ({{ session.role }})</span>
-        <a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout" target="_self">Log Out</a>
     </div>
     {% endif %}
     </header>
@@ -45,13 +45,29 @@
                 {% endif %}
             </div>
 
+            {% if request.args.get('message') %}
+            <div class="article-message">{{ request.args.get('message') }}</div>
+            {% endif %}
+
             <div class="single-article-body">
-                <p>{{ article.description or 'No description available.' }}</p>
+                {% if article.content %}
+                    <div class="article-full-content">
+                        {{ article.content | replace("\n", "<br>") | safe }}
+                    </div>
+                {% else %}
+                    <p class="article-description">{{ article.description or 'No description available.' }}</p>
+                    <div class="fetch-content-prompt">
+                        <p>This article only has a short excerpt. Fetch the full content from the source?</p>
+                        <form action="{{ url_for('fetch_article_content', article_id=article.id) }}" method="POST" target="_self">
+                            <button type="submit" class="btn-news">Fetch Full Content</button>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="single-article-actions">
-                <a href="{{ article.url }}" target="_blank" rel="noopener" class="btn-news">Read Full Article</a>
-                <a href="{{ url_for('news_live') }}" class="btn-news">Back to News</a>
+                <a href="{{ article.url }}" target="_blank" rel="noopener" class="btn-news" target="_self">Read on {{ article.source_name }}</a>
+                <a href="{{ url_for('news_live') }}" class="btn-news" target="_self">Back</a>
             </div>
         </article>
     </main>

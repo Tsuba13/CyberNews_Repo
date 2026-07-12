@@ -24,7 +24,7 @@
         {% if session.get('user_id') %}
 		<div class="header-right">
 			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
-			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+			<a href="{{ url_for('logout') }}" class="btn-logout" target="_self">Log Out</a>
 		</div>
 		{% endif %}
     </header>
@@ -81,7 +81,7 @@
                 <img src="{{ article.image_url }}" alt="{{ article.title }}" class="article-image" onerror="this.style.display='none'">
                 {% endif %}
                 <div class="article-content">
-                    <h3><a href="{{ url_for('view_article', article_id=article.id) }}">{{ article.title }}</a></h3>
+                    <h3><a href="{{ url_for('view_article', article_id=article.id) }}" target="_self">{{ article.title }}</a></h3>
                     <p class="article-description">{{ article.description or 'No description available.' }}</p>
                     <div class="article-meta">
                         <span class="article-source">{{ article.source_name }}</span>

@@ -16,15 +16,15 @@
 		<p class="MainTitle">CyberNews</p>
 		<nav>
 			<ul>
-				<li class="Gaps"><a href="{{ url_for('news') }}">Static News</a><li></li>
-				<li class="Gaps"><a href="{{ url_for('contact') }}">Contact us</a><li>
-				<li class="Gaps"><a href="{{ url_for('about') }}">About</a><li>
+				<li class="Gaps"><a href="{{ url_for('news') }}" target="_self">Static News</a><li></li>
+				<li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a><li>
+				<li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a><li>
 			</ul>
 		</nav>
 		{% if session.get('user_id') %}
 		<div class="header-right">
 			<span class="user-info">{{ session.username }} ({{ session.role }})</span>
-			<a href="{{ url_for('logout') }}" class="btn-logout">Log Out</a>
+			<a href="{{ url_for('logout') }}" class="btn-logout" target="_self">Log Out</a>
 		</div>
 		{% endif %}
 		</header>
@@ -33,13 +33,13 @@
 		<div class="logged-in-section">
 			<h2>Welcome back, {{ session.username }}!</h2>
 			<div class="button-section">
-				<a href="{{ url_for('news') }}" class="btn-news">News</a>
+				<a href="{{ url_for('news') }}" class="btn-news" target="_self">News</a>
 			</div>
 		</div>
 		{% else %}
 		<div class="login-section">
 			<h2>Member Login</h2>
-			<form action="{{ url_for('login') }}" method="POST">
+			<form action="{{ url_for('login') }}" method="POST" target="_self">
 				<div class="form-group">
 					<label for="username">Username</label>
 					<input type="text" id="username" name="username" placeholder="Enter username" required>
@@ -55,7 +55,7 @@
 				{% endif %}
 				<button type="submit" id="send-msg-btn">Log In</button>
 				<div class="button-section">
-					<a href="{{ url_for('register') }}" class="btn-news">Sign Up</a>
+					<a href="{{ url_for('register') }}" class="btn-news" target="_self">Sign Up</a>
 				</div>
 			</form>
 		</div>
