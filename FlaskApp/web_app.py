@@ -29,7 +29,7 @@ app.config.update({
     'PERMANENT_SESSION_LIFETIME': timedelta(hours=2),
     'SESSION_COOKIE_NAME': 'user_session',
     'SESSION_COOKIE_HTTPONLY': True,
-    'SESSION_COOKIE_SECURE': False,
+    'SESSION_COOKIE_SECURE': True,
     'SESSION_COOKIE_SAMESITE': 'Lax'
 })
 Session(app)
@@ -44,6 +44,11 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        if user is None:
+            session.clear()
+            return redirect(url_for('login'))
+        session['role'] = user.role
         return f(*args, **kwargs)
     return decorated_function
 
@@ -438,5 +443,4 @@ def contact():
      return "Bad request!", 400
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    
+    app.run(debug=False)
