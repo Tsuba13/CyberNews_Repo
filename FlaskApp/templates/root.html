@@ -16,7 +16,6 @@
 		<p class="MainTitle">CyberNews</p>
 		<nav>
 			<ul>
-				<li class="Gaps"><a href="{{ url_for('news') }}" target="_self">Static News</a><li></li>
 				<li class="Gaps"><a href="{{ url_for('contact') }}" target="_self">Contact us</a><li>
 				<li class="Gaps"><a href="{{ url_for('about') }}" target="_self">About</a><li>
 			</ul>
@@ -33,7 +32,8 @@
 		<div class="logged-in-section">
 			<h2>Welcome back, {{ session.username }}!</h2>
 			<div class="button-section">
-				<a href="{{ url_for('news') }}" class="btn-news" target="_self">News</a>
+				<a href="{{ url_for('news') }}" class="btn-news" target="_self">Static News</a>
+				<a href="{{ url_for('news_live') }}" class="btn-news" target="_self">Live News</a>
 			</div>
 		</div>
 		{% else %}
