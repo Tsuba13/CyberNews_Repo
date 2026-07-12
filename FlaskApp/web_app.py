@@ -146,8 +146,7 @@ def fetch_full_article_content(url):
         jsonld_match = re.search(r'"articleBody"\s*:\s*"([^"]+)"', html)
         if jsonld_match:
             text = jsonld_match.group(1)
-            text = text.replace('\n', '
-').replace('\"', '"').replace('\\', '\')
+            text = text.replace('\n', '').replace('\"', '"').replace('\\', '\')
             return text.strip()
 
         # Method 2: Common article content containers
