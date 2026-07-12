@@ -1,167 +1,119 @@
-# CyberNews Tracker
+# CyberNews
 
-A secure, role-based Flask web application for tracking cybersecurity news headlines. Features user authentication, an admin dashboard, contact forms, and dynamic content rendering.
+A Flask-based cybersecurity news aggregator with user authentication, live news fetching, and admin dashboard.
 
----
+## Overview
+
+CyberNews is a web application that aggregates cybersecurity news from multiple sources. It features a dual-mode news system: static articles served from a local JSON file, and live articles fetched from the [NewsAPI](https://newsapi.org) service. The app includes full user authentication, role-based access control, an admin dashboard with notification system, and a contact form.
 
 ## Features
 
-### User Authentication & Authorization
-- **User Registration** — Create new accounts with username and password validation (password confirmation required)
-- **Secure Login** — Passwords hashed with Werkzeug; session-based authentication with 2-hour expiration
-- **Role-Based Access Control** — Two-tier system: `user` and `admin`
-- **First-User Admin** — The first registered account automatically becomes an admin
-- **Session Security** — HTTPOnly cookies, configurable secure flags, and SameSite=Lax protection
-
-### Admin Dashboard
-- **User Management** — View all registered users in a sortable table
-- **Role Toggling** — Promote users to admin or demote admins to user (cannot self-demote)
-- **Account Deletion** — Delete any user account; self-deletion triggers automatic logout
-- **Action Feedback** — Flash messages confirm every admin action
-
-### News Headlines
-- **Dynamic Greeting** — Time-based greeting message (Morning/Afternoon/Evening/Night)
-- **Article Feed** — Click "Refresh Headlines" to load articles from `Articles.json`
-- **Progressive Loading** — Articles append one-by-one; "all up to date" message when exhausted
-
-### Contact Form
-- **Profile Submission** — Collect name, age, gender, title, and message
-- **Validation** — All fields required with HTML5 client-side validation
-- **Result Display** — Submitted data rendered back in a clean summary view
-
-### UI/UX
-- **Responsive Design** — Mobile-friendly layout with collapsible header
-- **Cyber-Themed Styling** — Dark headers, cyan accents, neon glow effects
-- **Cookie Notice** — Auto-dismissible cookie consent popup (4-second fade)
-- **Consistent Navigation** — Home button, user info, and logout across all protected pages
-
----
+- **User Authentication** — Secure registration and login with password hashing (Werkzeug) and server-side filesystem sessions
+- **Role-Based Access Control** — Two user roles: `user` and `admin`. The first registered account automatically becomes an admin
+- **Static News** — Pre-loaded cybersecurity headlines from a local JSON file
+- **Live News** — Fetches real-time cybersecurity articles from NewsAPI with search, filter (by source/author), and sort capabilities
+- **Article Viewer** — Dedicated article pages with metadata, optional full-content fetching from source URLs, and fallback excerpts
+- **Admin Dashboard** — Manage registered users (promote/demote roles, delete accounts) with action confirmations
+- **Admin Notifications** — Real-time notification system for admin users when contact form messages are submitted
+- **Contact Form** — Logged-in users can submit messages; all admins are automatically notified
+- **Responsive Dark Theme** — Custom CSS3 dark-mode UI with gold accent colors
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Python 3, Flask 3.1 |
-| ORM | Flask-SQLAlchemy 3.1 |
-| Sessions | Flask-Session (filesystem) |
-| Security | Werkzeug password hashing |
-| Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Database | SQLite (development) |
-| Deployment | Gunicorn |
-
----
-
-## Project Structure
-
-```
-CyberNews/
-├── web_app.py              # Main Flask application
-├── requirements.txt        # Python dependencies
-├── users.db                # SQLite database (auto-created)
-├── static/
-│   ├── style.css           # Global stylesheet
-│   ├── Articles.json       # News article data
-│   ├── Greeting.js         # Time-based greeting logic
-│   ├── Refresher.js        # Article loading logic
-│   ├── CookieNoticePopup.js # Cookie banner dismissal
-│   └── favicon.ico         # Site icon
-└── templates/
-    ├── root.html           # Landing / login page
-    ├── login.html          # Dedicated login page
-    ├── register.html       # Account creation
-    ├── register_success.html # Post-registration confirmation
-    ├── news.html           # News headlines (protected)
-    ├── about.html          # About page (protected)
-    ├── form.html           # Contact form (protected)
-    ├── result.html         # Form submission result (protected)
-    ├── admin.html          # Admin dashboard (admin only)
-    └── access_denied.html  # 403-style error page
-```
-
----
-
+| Layer        | Technology                             |
+| ------------ | -------------------------------------- |
+| Backend      | Python 3, Flask                        |
+| ORM          | SQLAlchemy                             |
+| Sessions     | Flask-Session (filesystem)             |
+| Security     | Werkzeug (password hashing)            |
+| Database     | SQLite (users.db + articles.db)        |
+| Templating   | Jinja2                                 |
+| Frontend     | Vanilla JavaScript, CSS3               |
+| External API | NewsAPI                                |
+| Deployment   | Render (web service + persistent disk) |
 ## Installation
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/yourusername/cybernews-tracker.git
-cd cybernews-tracker
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Tsuba13/CyberNews_Repo
+   cd CyberNews_Repo
+   ```
 
-### 2. Create a virtual environment
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+2. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+3. Set environment variables either locally in a `.env`  file or in the environment variables section on Render:
+   ```bash
+   export FLASK_SECRET_KEY="your-secret-key-here"
+   export NEWS_API_KEY="your-newsapi-key-here"
+   ```
 
-### 4. Set environment variables
-```bash
-export FLASK_SECRET_KEY="your-secret-key-here"  # On Windows: set FLASK_SECRET_KEY=...
-```
+4. Connect your GitHub repository to Render and deploy.
 
-> **Note:** The app will raise a `ValueError` if `FLASK_SECRET_KEY` is not set.
+## Environment Variables
 
-### 5. Run the application
-```bash
-python web_app.py
-```
+| Variable           | Required | Description                                                                                                                                               |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FLASK_SECRET_KEY` | Yes      | Secret key for session management and CSRF protection                                                                                                     |
+| `NEWS_API_KEY`     | No*      | API key for [NewsAPI](https://newsapi.org). Required for live news fetching. Without it, the live news page will display previously cached articles only. |
 
-The server will start at `http://127.0.0.1:5000/`.
+## Database
 
----
+The application uses two SQLite databases:
+- **`users.db`** — Stores user accounts, roles, and creation timestamps
+- **`articles.db`** — Stores fetched live news articles with metadata
 
-## Configuration
+Both databases are auto-created on first run via `db.create_all()`. On Render, ensure `/var/data/` is mounted to a persistent disk.
 
-Key Flask settings (in `web_app.py`):
+## Routes
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `SESSION_TYPE` | `filesystem` | Server-side session storage |
-| `PERMANENT_SESSION_LIFETIME` | 2 hours | Auto-logout after inactivity |
-| `SESSION_COOKIE_HTTPONLY` | `True` | Prevents XSS cookie theft |
-| `SESSION_COOKIE_SECURE` | `False` | Set `True` behind HTTPS |
-| `SESSION_COOKIE_SAMESITE` | `Lax` | CSRF protection |
+| Route | Method | Access | Description |
+|-------|--------|--------|-------------|
+| `/` | GET | Public | Homepage (shows login form or welcome back) |
+| `/register` | GET/POST | Public | Create a new account |
+| `/login` | GET/POST | Public | Log in to existing account |
+| `/logout` | GET | Logged-in | Clear session and log out |
+| `/news` | GET | Logged-in | Static news from JSON file |
+| `/news-live` | GET/POST | Logged-in | Live news with search/filter |
+| `/article/<id>` | GET | Logged-in | View single article |
+| `/article/<id>/fetch-content` | POST | Logged-in | Scrape full article text from source |
+| `/contact-us` | GET/POST | Logged-in | Contact form (notifies admins on submit) |
+| `/about-us` | GET | Logged-in | About / credits page |
+| `/admin_dashboard` | GET | Admin only | User management table |
+| `/admin/toggle-role/<id>` | POST | Admin only | Promote/demote a user |
+| `/admin/delete-user/<id>` | POST | Admin only | Delete a user account |
+| `/admin/notifications` | GET | Admin only | View all notifications |
+| `/admin/notifications/<id>/read` | POST | Admin only | Mark notification as read |
+| `/admin/notifications/mark-all-read` | POST | Admin only | Mark all as read |
+| `/admin/notifications/<id>/delete` | POST | Admin only | Delete a notification |
+| `/access_denied` | GET | Logged-in | Unauthorized access page |
 
----
+## Admin Features
 
-## Usage
+- **User Management**: View all registered users, toggle roles between `user` and `admin`, delete accounts (with self-protection)
+- **Notifications**: Receive automatic notifications when a contact form is submitted. Notifications support marking as read (individual or bulk) and deletion.
+- **Badge Indicators**: Unread notification count appears in the footer across all pages when logged in as admin.
 
-### Regular Users
-1. Visit the home page and log in, or click **Sign Up** to register
-2. Browse the **News** page for cybersecurity headlines
-3. Use **Contact us** to submit a profile/message
-4. View **About** for project info
+## Security Notes
 
-### Administrators
-1. Log in with an admin account
-2. Access **Admin Dashboard** from the News page navigation
-3. Promote/demote users or delete accounts as needed
-
----
-
-## Security Considerations
-
-- Passwords are hashed with **Werkzeug's `generate_password_hash`**
-- Sessions expire after **2 hours** of inactivity
-- Admin routes are protected by both `@login_required` and `@admin_required` decorators
-- Self-deletion is handled gracefully with immediate session invalidation
-- CSRF protection is recommended for production (consider Flask-WTF)
-
----
+- Passwords are hashed with Werkzeug's `generate_password_hash`
+- Sessions are server-side (filesystem) with 2-hour lifetime
+- Session cookies are `HttpOnly`, `Secure`, and `SameSite=Lax`
+- Admin routes are protected by `@admin_required` decorator
+- Self-deletion from admin dashboard immediately logs the admin out
+- Article content fetching uses a realistic browser User-Agent to reduce blocking
 
 ## License
 
-This project is open-source and available under the [MIT License](LICENSE).
+This project was created for **educational purposes**.
+
+**Author:** Mhd Najeeb Mshaweh  
+**Teaching body:** Cybersteps
 
 ---
 
-## Author
-
-Made by a student of life.
-
-© CyberNews Tracker TradeMedia
+*Powered by NewsAPI.org*

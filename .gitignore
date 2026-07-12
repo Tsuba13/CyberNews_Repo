@@ -5,3 +5,6 @@ __pycache__/
 users.db
 *.db-journal
 flask_session/
+*.docx
+*.docx#
+*.pdf
