@@ -32,10 +32,16 @@
 		</header>
 		<main>
 			<h1><p>Greeting message here.</p></h1>
-			<h2>Please log in to see the latest news.</h2>
 			{% if session.get('user_id') %}
 				<button id="RefreshButton">Refresh Headlines</button>
 				<section id="HeadlinesContainer"></section>
+			{% else %}
+				<br>
+				<h2>Please log in to see the latest news.</h2>
+				<br>
+				<form action="{{ url_for('login') }}" target="_self"></form>
+					<button type="submit" id="send-msg-btn">Log In</button>
+				</form>
 			{% endif %}
 		</main>
 		<footer>
