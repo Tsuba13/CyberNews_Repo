@@ -39,9 +39,11 @@
 				<br>
 				<h2>Please log in to see the latest news.</h2>
 				<br>
-				<form action="{{ url_for('login') }}" target="_self"></form>
-					<button type="submit" id="send-msg-btn">Log In</button>
-				</form>
+				<div class="form-container">
+					<div class="button-section">
+						<a href="{{ url_for('login') }}" class="btn-news" target="_self">Log In</a>
+					</div>
+				</div>
 			{% endif %}
 		</main>
 		<footer>
