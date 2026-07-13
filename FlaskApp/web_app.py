@@ -537,7 +537,7 @@ def fetch_article_content(article_id):
 
 
 @app.route("/contact-us", methods=["GET", "POST"])
-sdef contact():
+def contact():
     if request.method == "POST":
         form_data = {
             "name": request.form.get("name"),
