@@ -296,25 +296,28 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if not username or not password:
-            error = "Please enter both username and password."
-        else:
-            user = User.query.filter_by(username=username).first()
-            if user is None or not check_password_hash(user.password_hash, password):
-                error = "incorrect username or password."
+    if 'user_id' in session:
+        return redirect(url_for('root'))
+    else:
+        error = None
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
+            if not username or not password:
+                error = "Please enter both username and password."
             else:
-                session.permanent = True
-                session['user_id'] = user.id
-                session['username'] = user.username
-                session['role'] = user.role
-                return redirect(url_for('news'))
-        if error and request.referrer and 'root' in request.referrer:
-            return redirect(url_for('root', error=error))
-    return render_template("login.html", error=error)
+                user = User.query.filter_by(username=username).first()
+                if user is None or not check_password_hash(user.password_hash, password):
+                    error = "incorrect username or password."
+                else:
+                    session.permanent = True
+                    session['user_id'] = user.id
+                    session['username'] = user.username
+                    session['role'] = user.role
+                    return redirect(url_for('news'))
+            if error and request.referrer and 'root' in request.referrer:
+                return redirect(url_for('root', error=error))
+        return render_template("login.html", error=error)
 
 @app.route("/logout")
 @login_required
