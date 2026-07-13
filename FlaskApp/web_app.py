@@ -441,12 +441,10 @@ def delete_notification(notification_id):
     return redirect(url_for('admin_notifications'))
 
 @app.route("/about-us")
-@login_required
 def about():
     return render_template("about.html")
 
 @app.route("/news")
-@login_required
 def news():
     return render_template("news.html")
 
@@ -539,8 +537,7 @@ def fetch_article_content(article_id):
 
 
 @app.route("/contact-us", methods=["GET", "POST"])
-@login_required
-def contact():
+sdef contact():
     if request.method == "POST":
         form_data = {
             "name": request.form.get("name"),
